@@ -1,0 +1,45 @@
+-------------------------------------------------------------------------
+ RESULTS FROM DNS OF A TURBULENT DUCT FLOW UP TO RE_tau=1200
+-------------------------------------------------------------------------
+
+Description: 
+
+A schema of the problem is displayed in the file
+DuctFlow_schema.eps. The dimensions of the computational domain are
+2pi*h x h x h in the stream-wise and wall-normal directions. The
+Reynolds number based on the friction velocity, u_tau, and the
+hydraulic diameter, h, is given by Re_tau=u_tau*h/nu. Period boundary
+conditions are applied in the stream-wise direction. The flow is
+driven by means of a constant pressure gradient in the stream-wise
+direction, dP/dx=4*h*u_tau^2. Finally, no-slip boundary conditions are
+imposed at the walls. Therefore, the configuration depends only on the
+Re_tau. Hereafter, the results are presented in dimensionless form
+where the reference length, velocity and time are h, u_tau, h/u_tau,
+respectively. Apart from the classical configuration at Re_tau=300,
+results at Re_tau=600, 900 and 1200 are also presented here.
+
+-------------------------------------------------------------------------
+
+Contents:
+
+movie    --> visualization of turbulent flow in a square duct at Re_tau=1200. 
+	     It displays the instantaneous magnitudes of vorticity and velocity.
+
+profiles --> time-averaged profiles at different locations. 
+	     Labeling: DuctFlow_ReXXXX_Aabcd where 'XXXX' is the Re_tau, 'A' is 
+	     the axis and 'abcd...' corresponds to the a.bcd position in that axis
+	     Ex: DuctFlow_Re900_Z005  is the profile at Z=0.05 and Ra_tau=900
+	         DuctFlow_Re1200_Z001 is the profile at Z=0.01 and Ra_tau=1200
+
+YZsections --> time-averaged flow
+	       Labeling: DuctFlow_ReXXXX_YZ.dat where 'XXXX' os the Re_tau.
+	       Note: these files are in 2D Cartesian format for Tecplot
+
+The table-headers at the beginning of all the files should be
+sufficient to explain the contents of the files.
+
+File DuctFlow.tar.gz contains all the above-described information.
+
+For more details you can contact: cttc@cttc.upc.edu
+
+-------------------------------------------------------------------------
