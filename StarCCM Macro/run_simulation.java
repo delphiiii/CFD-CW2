@@ -201,7 +201,7 @@ public class run_simulation extends StarMacro {
 
       xyzInternalTable_0.extract();
 
-      xyzInternalTable_0.export(String.format("C:\\Users\\howar\\Desktop\\CFD Project Assignment 2\\data_%s.csv", String.valueOf(grid)), ",");
+      xyzInternalTable_0.export(String.format(System.getProperty("user.dir") + "\\data_%s.csv", String.valueOf(grid)), ",");
 
       Cartesian2DAxisManager cartesian2DAxisManager_0 = 
         ((Cartesian2DAxisManager) residualPlot_0.getAxisManager());
