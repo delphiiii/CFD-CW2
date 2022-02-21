@@ -1,0 +1,13 @@
+StarCCM Macro 
+
+Iterate through different grid sizes and export results to home directory 
+
+To use the macro: 
+    - load the star.sim file
+    - set required physics and stopping criteria (maximum steps)
+    - File -> Macro -> Play Macro
+
+To edit or add grid sizes: edit the map at line 22
+
+To change output directory or filename: edit output options on line 204. 
+    - Defaults to home directory with filename "data{gridsize}.csv"
