@@ -185,7 +185,7 @@ public class run_simulation extends StarMacro {
       PlotUpdate plotUpdate_0 = 
         residualPlot_0.getPlotUpdate();
 
-        residualPlot_0.export(String.format("C:\\Users\\howar\\Desktop\\CFD Project Assignment 2\\residuals_%s.csv", String.valueOf(grid)), ",");
+        residualPlot_0.export(String.format(System.getProperty("user.dir") + "\\residual_%s.csv", String.valueOf(grid)), ",");
 
       HardcopyProperties hardcopyProperties_6 = 
         plotUpdate_0.getHardcopyProperties();

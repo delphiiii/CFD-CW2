@@ -9,5 +9,5 @@ To use the macro:
 
 To edit or add grid sizes: edit the map at line 22
 
-To change output directory or filename: edit output options on line 204. 
-    - Defaults to home directory with filename "data{gridsize}.csv"
+To change output directory or filename: edit output options on line 188 and 204. 
+    - Defaults to home directory with filename "data{gridsize}.csv" and "residual{gridsize}.csv"
