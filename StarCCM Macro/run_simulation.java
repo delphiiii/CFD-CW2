@@ -19,13 +19,13 @@ public class run_simulation extends StarMacro {
 
   private void execute0() {
     Map<Integer, Double> map = new HashMap<Integer, Double>();
-    map.put(130, 0.000735121);
-    map.put(150, 0.0006530360906741604);
-    map.put(170, 0.0005808561774881047);
-    map.put(190, 0.0005178742247166794);
-    map.put(210, 0.0004633831966347307);
-    map.put(230, 0.0004166760575171052);
-    map.put(250, 0.0003770457716386496);
+    map.put(65, 0.000735121);
+    map.put(75, 0.0006530360906741604);
+    map.put(85, 0.0005808561774881047);
+    map.put(95, 0.0005178742247166794);
+    map.put(105, 0.0004633831966347307);
+    map.put(115, 0.0004166760575171052);
+    map.put(125, 0.0003770457716386496);
 
     for (Map.Entry<Integer, Double> entry : map.entrySet()) {
       int grid = entry.getKey();
@@ -146,18 +146,18 @@ public class run_simulation extends StarMacro {
       PatchCurve patchCurve_4 = 
         ((PatchCurve) directedPatchSourceMesh_3.getPatchCurveManager().getObject("PatchCurve 2"));
 
-      patchCurve_4.getStretchingFunction().setSelected(StretchingFunctionBase.Type.TWO_SIDED_HYPERBOLIC);
+      patchCurve_4.getStretchingFunction().setSelected(StretchingFunctionBase.Type.ONE_SIDED_HYPERBOLIC);
 
-      directedPatchSourceMesh_3.defineMeshPatchCurve(patchCurve_4, patchCurve_4.getStretchingFunction(), value, value, grid, false, false);
+      directedPatchSourceMesh_3.defineMeshPatchCurve(patchCurve_4, patchCurve_4.getStretchingFunction(), value, 0.1, grid, false, false);
 
       currentView_7.setInput(new DoubleVector(new double[] {0.0, 0.5, 0.5000000000000001}), new DoubleVector(new double[] {-2.7320508075688776, 0.5, 0.5000000000000001}), new DoubleVector(new double[] {0.0, -1.0, 0.0}), 0.7071067811865476, 1);
 
       PatchCurve patchCurve_5 = 
         ((PatchCurve) directedPatchSourceMesh_3.getPatchCurveManager().getObject("PatchCurve 0"));
 
-      patchCurve_5.getStretchingFunction().setSelected(StretchingFunctionBase.Type.TWO_SIDED_HYPERBOLIC);
+      patchCurve_5.getStretchingFunction().setSelected(StretchingFunctionBase.Type.ONE_SIDED_HYPERBOLIC);
 
-      directedPatchSourceMesh_3.defineMeshPatchCurve(patchCurve_5, patchCurve_5.getStretchingFunction(), value, value, grid, false, false);
+      directedPatchSourceMesh_3.defineMeshPatchCurve(patchCurve_5, patchCurve_5.getStretchingFunction(), value, 0.1, grid, false, false);
 
       directedPatchSourceMesh_3.stopEditPatchOperation();
 
