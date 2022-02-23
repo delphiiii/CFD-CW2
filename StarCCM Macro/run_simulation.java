@@ -10,6 +10,7 @@ import star.sweptmesher.ui.*;
 import star.vis.*;
 import star.meshing.*;
 import star.sweptmesher.*;
+import star.flow.*;
 
 public class run_simulation extends StarMacro {
 
@@ -18,200 +19,235 @@ public class run_simulation extends StarMacro {
   }
 
   private void execute0() {
+
     Map<Integer, Double> map = new HashMap<Integer, Double>();
-    map.put(65, 0.000735121);
-    map.put(75, 0.0006530360906741604);
-    map.put(85, 0.0005808561774881047);
-    map.put(95, 0.0005178742247166794);
-    map.put(105, 0.0004633831966347307);
-    map.put(115, 0.0004166760575171052);
-    map.put(125, 0.0003770457716386496);
+      map.put(50, 0.00099025);
+      map.put(100, 0.00082517);
+      map.put(150, 0.00067884);
+      map.put(200, 0.00055125);
+
+    Map<Integer, Double> pressure = new HashMap<Integer, Double>();
+    pressure.put(300, -8.83516e-6);
+    pressure.put(600, -3.534063e-5);
+    pressure.put(900, -79.51643e-6);
+    pressure.put(1200, -141.36254e-6);
+
+    Map<String, String> turbulence_model = new HashMap<String, String>();
+    turbulence_model.put("Physics 1", "Standard k-epsilon");
+    turbulence_model.put("Physics 2", "Standard low-Re linear");
+    turbulence_model.put("Physics 3", "Standard low-Re quadratic");
+    turbulence_model.put("Physics 4", "Reynolds stress turbulence");
 
     for (Map.Entry<Integer, Double> entry : map.entrySet()) {
       int grid = entry.getKey();
       double value = entry.getValue();
 
-      Simulation simulation_0 = 
-        getActiveSimulation();
+      for (Map.Entry<Integer, Double> p_entry : pressure.entrySet()) {
+        int Re = p_entry.getKey();
+        double pressure_value = p_entry.getValue();
 
-      Scene scene_8 = 
-        simulation_0.getSceneManager().createScene("Directed Mesh");
+        for (Map.Entry<String, String> turb : turbulence_model.entrySet()) {
+          String model = turb.getKey();
+          String model_name = turb.getValue();
 
-      scene_8.initializeAndWait();
+          Simulation simulation_0 = 
+            getActiveSimulation();
+          
+          Scene scene_8 = 
+            simulation_0.getSceneManager().createScene("Directed Mesh");
 
-      DirectedMeshOperation directedMeshOperation_5 = 
-        ((DirectedMeshOperation) simulation_0.get(MeshOperationManager.class).getObject("Directed Mesh"));
+          scene_8.initializeAndWait();
 
-      directedMeshOperation_5.editDirectedMeshOperation(scene_8);
+          DirectedMeshOperation directedMeshOperation_5 = 
+            ((DirectedMeshOperation) simulation_0.get(MeshOperationManager.class).getObject("Directed Mesh"));
 
-      PolygonMeshDisplayer polygonMeshDisplayer_7 = 
-        ((PolygonMeshDisplayer) scene_8.getDisplayerManager().getDisplayer("PolygonMesh displayer 1"));
+          directedMeshOperation_5.editDirectedMeshOperation(scene_8);
 
-      polygonMeshDisplayer_7.initialize();
+          PolygonMeshDisplayer polygonMeshDisplayer_7 = 
+            ((PolygonMeshDisplayer) scene_8.getDisplayerManager().getDisplayer("PolygonMesh displayer 1"));
 
-      PartDisplayer partDisplayer_37 = 
-        ((PartDisplayer) scene_8.getDisplayerManager().getDisplayer("Dummy 1"));
+          polygonMeshDisplayer_7.initialize();
 
-      partDisplayer_37.initialize();
+          PartDisplayer partDisplayer_37 = 
+            ((PartDisplayer) scene_8.getDisplayerManager().getDisplayer("Dummy 1"));
 
-      PartDisplayer partDisplayer_38 = 
-        ((PartDisplayer) scene_8.getDisplayerManager().getDisplayer("SourceSurfaces 1"));
+          partDisplayer_37.initialize();
 
-      partDisplayer_38.initialize();
+          PartDisplayer partDisplayer_38 = 
+            ((PartDisplayer) scene_8.getDisplayerManager().getDisplayer("SourceSurfaces 1"));
 
-      PartDisplayer partDisplayer_39 = 
-        ((PartDisplayer) scene_8.getDisplayerManager().getDisplayer("TargetSurfaces 1"));
+          partDisplayer_38.initialize();
 
-      partDisplayer_39.initialize();
+          PartDisplayer partDisplayer_39 = 
+            ((PartDisplayer) scene_8.getDisplayerManager().getDisplayer("TargetSurfaces 1"));
 
-      PartDisplayer partDisplayer_40 = 
-        ((PartDisplayer) scene_8.getDisplayerManager().getDisplayer("InternalSurfaces 1"));
+          partDisplayer_39.initialize();
 
-      partDisplayer_40.initialize();
+          PartDisplayer partDisplayer_40 = 
+            ((PartDisplayer) scene_8.getDisplayerManager().getDisplayer("InternalSurfaces 1"));
 
-      PartDisplayer partDisplayer_41 = 
-        ((PartDisplayer) scene_8.getDisplayerManager().getDisplayer("DirectedVolumeMesh 1"));
+          partDisplayer_40.initialize();
 
-      partDisplayer_41.initialize();
+          PartDisplayer partDisplayer_41 = 
+            ((PartDisplayer) scene_8.getDisplayerManager().getDisplayer("DirectedVolumeMesh 1"));
 
-      scene_8.open();
+          partDisplayer_41.initialize();
 
-      scene_8.setAdvancedRenderingEnabled(false);
+          scene_8.open();
 
-      SceneUpdate sceneUpdate_8 = 
-        scene_8.getSceneUpdate();
+          scene_8.setAdvancedRenderingEnabled(false);
 
-      HardcopyProperties hardcopyProperties_10 = 
-        sceneUpdate_8.getHardcopyProperties();
+          SceneUpdate sceneUpdate_8 = 
+            scene_8.getSceneUpdate();
 
-      hardcopyProperties_10.setCurrentResolutionWidth(25);
+          HardcopyProperties hardcopyProperties_10 = 
+            sceneUpdate_8.getHardcopyProperties();
 
-      hardcopyProperties_10.setCurrentResolutionHeight(25);
+          hardcopyProperties_10.setCurrentResolutionWidth(25);
 
-      Scene scene_6 = 
-        simulation_0.getSceneManager().getScene("Mesh Scene 1");
+          hardcopyProperties_10.setCurrentResolutionHeight(25);
 
-      SceneUpdate sceneUpdate_6 = 
-        scene_6.getSceneUpdate();
+          Scene scene_6 = 
+            simulation_0.getSceneManager().getScene("Mesh Scene 1");
 
-      HardcopyProperties hardcopyProperties_8 = 
-        sceneUpdate_6.getHardcopyProperties();
+          SceneUpdate sceneUpdate_6 = 
+            scene_6.getSceneUpdate();
 
-      hardcopyProperties_8.setCurrentResolutionWidth(1765);
+          HardcopyProperties hardcopyProperties_8 = 
+            sceneUpdate_6.getHardcopyProperties();
 
-      hardcopyProperties_8.setCurrentResolutionHeight(871);
+          hardcopyProperties_8.setCurrentResolutionWidth(1765);
 
-      hardcopyProperties_10.setCurrentResolutionWidth(1763);
+          hardcopyProperties_8.setCurrentResolutionHeight(871);
 
-      hardcopyProperties_10.setCurrentResolutionHeight(870);
+          hardcopyProperties_10.setCurrentResolutionWidth(1763);
 
-      scene_8.resetCamera();
+          hardcopyProperties_10.setCurrentResolutionHeight(870);
 
-      DirectedMeshDisplayController directedMeshDisplayController_5 = 
-        directedMeshOperation_5.getDisplayController();
+          scene_8.resetCamera();
 
-      directedMeshDisplayController_5.getHighlightedSurfaces().setQuery(null);
+          DirectedMeshDisplayController directedMeshDisplayController_5 = 
+            directedMeshOperation_5.getDisplayController();
 
-      directedMeshDisplayController_5.getHighlightedSurfaces().setObjects();
+          directedMeshDisplayController_5.getHighlightedSurfaces().setQuery(null);
 
-      directedMeshDisplayController_5.getHiddenSurfaces().setQuery(null);
+          directedMeshDisplayController_5.getHighlightedSurfaces().setObjects();
 
-      directedMeshDisplayController_5.getHiddenSurfaces().setObjects();
+          directedMeshDisplayController_5.getHiddenSurfaces().setQuery(null);
 
-      DirectedPatchSourceMesh directedPatchSourceMesh_3 = 
-        ((DirectedPatchSourceMesh) directedMeshOperation_5.getGuidedSurfaceMeshBaseManager().getObject("Patch Mesh"));
+          directedMeshDisplayController_5.getHiddenSurfaces().setObjects();
 
-      directedPatchSourceMesh_3.editDirectedPatchSourceMesh();
+          DirectedPatchSourceMesh directedPatchSourceMesh_3 = 
+            ((DirectedPatchSourceMesh) directedMeshOperation_5.getGuidedSurfaceMeshBaseManager().getObject("Patch Mesh"));
 
-      CurrentView currentView_7 = 
-        scene_8.getCurrentView();
+          directedPatchSourceMesh_3.editDirectedPatchSourceMesh();
 
-      currentView_7.setInput(new DoubleVector(new double[] {0.0, 0.5, 0.5000000000000001}), new DoubleVector(new double[] {-1.4177446879808873, 0.5, 0.5000000000000001}), new DoubleVector(new double[] {-1.0, 0.0, 0.0}), 0.7088723439378913, 1);
+          CurrentView currentView_7 = 
+            scene_8.getCurrentView();
 
-      currentView_7.setInput(new DoubleVector(new double[] {0.0, 0.5, 0.5000000000000001}), new DoubleVector(new double[] {-2.7320508075688776, 0.5, 0.5000000000000001}), new DoubleVector(new double[] {-0.0, -1.0, 0.0}), 0.7071067811865476, 1);
+          currentView_7.setInput(new DoubleVector(new double[] {0.0, 0.5, 0.5000000000000001}), new DoubleVector(new double[] {-1.4177446879808873, 0.5, 0.5000000000000001}), new DoubleVector(new double[] {-1.0, 0.0, 0.0}), 0.7088723439378913, 1);
 
-      scene_8.setTransparencyOverrideMode(SceneTransparencyOverride.USE_DISPLAYER_PROPERTY);
+          currentView_7.setInput(new DoubleVector(new double[] {0.0, 0.5, 0.5000000000000001}), new DoubleVector(new double[] {-2.7320508075688776, 0.5, 0.5000000000000001}), new DoubleVector(new double[] {-0.0, -1.0, 0.0}), 0.7071067811865476, 1);
 
-      scene_8.setAdvancedRenderingEnabled(false);
+          scene_8.setTransparencyOverrideMode(SceneTransparencyOverride.USE_DISPLAYER_PROPERTY);
 
-      directedPatchSourceMesh_3.autopopulateFeatureEdges();
+          scene_8.setAdvancedRenderingEnabled(false);
 
-      Units units_0 = 
-        simulation_0.getUnitsManager().getPreferredUnits(new IntVector(new int[] {0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}));
+          directedPatchSourceMesh_3.autopopulateFeatureEdges();
 
-      directedPatchSourceMesh_3.enablePatchMeshMode();
+          Units units_0 = 
+            simulation_0.getUnitsManager().getPreferredUnits(new IntVector(new int[] {0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}));
 
-      currentView_7.setInput(new DoubleVector(new double[] {0.0, 0.5, 0.5000000000000001}), new DoubleVector(new double[] {-2.7320508075688776, 0.5, 0.5000000000000001}), new DoubleVector(new double[] {0.0, -1.0, 0.0}), 0.7071067811865476, 1);
+          directedPatchSourceMesh_3.enablePatchMeshMode();
 
-      PatchCurve patchCurve_4 = 
-        ((PatchCurve) directedPatchSourceMesh_3.getPatchCurveManager().getObject("PatchCurve 2"));
+          currentView_7.setInput(new DoubleVector(new double[] {0.0, 0.5, 0.5000000000000001}), new DoubleVector(new double[] {-2.7320508075688776, 0.5, 0.5000000000000001}), new DoubleVector(new double[] {0.0, -1.0, 0.0}), 0.7071067811865476, 1);
 
-      patchCurve_4.getStretchingFunction().setSelected(StretchingFunctionBase.Type.ONE_SIDED_HYPERBOLIC);
+          PatchCurve patchCurve_4 = 
+            ((PatchCurve) directedPatchSourceMesh_3.getPatchCurveManager().getObject("PatchCurve 2"));
 
-      directedPatchSourceMesh_3.defineMeshPatchCurve(patchCurve_4, patchCurve_4.getStretchingFunction(), value, 0.1, grid, false, false);
+          patchCurve_4.getStretchingFunction().setSelected(StretchingFunctionBase.Type.ONE_SIDED_HYPERBOLIC);
 
-      currentView_7.setInput(new DoubleVector(new double[] {0.0, 0.5, 0.5000000000000001}), new DoubleVector(new double[] {-2.7320508075688776, 0.5, 0.5000000000000001}), new DoubleVector(new double[] {0.0, -1.0, 0.0}), 0.7071067811865476, 1);
+          directedPatchSourceMesh_3.defineMeshPatchCurve(patchCurve_4, patchCurve_4.getStretchingFunction(), value, 0.1, grid, false, false);
 
-      PatchCurve patchCurve_5 = 
-        ((PatchCurve) directedPatchSourceMesh_3.getPatchCurveManager().getObject("PatchCurve 0"));
+          currentView_7.setInput(new DoubleVector(new double[] {0.0, 0.5, 0.5000000000000001}), new DoubleVector(new double[] {-2.7320508075688776, 0.5, 0.5000000000000001}), new DoubleVector(new double[] {0.0, -1.0, 0.0}), 0.7071067811865476, 1);
 
-      patchCurve_5.getStretchingFunction().setSelected(StretchingFunctionBase.Type.ONE_SIDED_HYPERBOLIC);
+          PatchCurve patchCurve_5 = 
+            ((PatchCurve) directedPatchSourceMesh_3.getPatchCurveManager().getObject("PatchCurve 0"));
 
-      directedPatchSourceMesh_3.defineMeshPatchCurve(patchCurve_5, patchCurve_5.getStretchingFunction(), value, 0.1, grid, false, false);
+          patchCurve_5.getStretchingFunction().setSelected(StretchingFunctionBase.Type.ONE_SIDED_HYPERBOLIC);
 
-      directedPatchSourceMesh_3.stopEditPatchOperation();
+          directedPatchSourceMesh_3.defineMeshPatchCurve(patchCurve_5, patchCurve_5.getStretchingFunction(), value, 0.1, grid, false, false);
 
-      scene_8.setAdvancedRenderingEnabled(false);
+          directedPatchSourceMesh_3.stopEditPatchOperation();
 
-      scene_8.setAdvancedRenderingEnabled(false);
+          scene_8.setAdvancedRenderingEnabled(false);
 
-      scene_8.setAdvancedRenderingEnabled(false);
+          scene_8.setAdvancedRenderingEnabled(false);
 
-      scene_8.setAdvancedRenderingEnabled(false);
+          scene_8.setAdvancedRenderingEnabled(false);
 
-      directedMeshOperation_5.stopEditingDirectedMeshOperation();
+          scene_8.setAdvancedRenderingEnabled(false);
 
-      simulation_0.getSceneManager().deleteScenes(new NeoObjectVector(new Object[] {scene_8}));
+          directedMeshOperation_5.stopEditingDirectedMeshOperation();
 
-      hardcopyProperties_8.setCurrentResolutionWidth(1763);
+          simulation_0.getSceneManager().deleteScenes(new NeoObjectVector(new Object[] {scene_8}));
 
-      hardcopyProperties_8.setCurrentResolutionHeight(870);
-      directedMeshOperation_5.execute();
-      simulation_0.getSimulationIterator().runAutomation();
+          hardcopyProperties_8.setCurrentResolutionWidth(1763);
 
-      ResidualPlot residualPlot_0 = 
-        ((ResidualPlot) simulation_0.getPlotManager().getPlot("Residuals"));
+          hardcopyProperties_8.setCurrentResolutionHeight(870);
+          directedMeshOperation_5.execute();
 
-      PlotUpdate plotUpdate_0 = 
-        residualPlot_0.getPlotUpdate();
+          BoundaryInterface boundaryInterface_0 = ((BoundaryInterface) simulation_0.getInterfaceManager().getInterface("Interface 1"));
+      
+          PressureJump pressureJump_0 = 
+            boundaryInterface_0.getValues().get(PressureJump.class);
+      
+          pressureJump_0.getPressureJump().setValue(pressure_value);
 
-        residualPlot_0.export(String.format(System.getProperty("user.dir") + "\\residual_%s.csv", String.valueOf(grid)), ",");
+          Region region_0 = simulation_0.getRegionManager().getRegion("Region");
 
-      HardcopyProperties hardcopyProperties_6 = 
-        plotUpdate_0.getHardcopyProperties();
+          PhysicsContinuum physicsContinuum = 
+          ((PhysicsContinuum) simulation_0.getContinuumManager().getContinuum(model));
+    
+          simulation_0.getContinuumManager().addToContinuum(new NeoObjectVector(new Object[] {region_0}), physicsContinuum);
+          
+          simulation_0.getSimulationIterator().runAutomation();
 
-      hardcopyProperties_6.setCurrentResolutionWidth(1764);
+          ResidualPlot residualPlot_0 = 
+            ((ResidualPlot) simulation_0.getPlotManager().getPlot("Residuals"));
 
-      hardcopyProperties_6.setCurrentResolutionWidth(1763);
+          PlotUpdate plotUpdate_0 = 
+            residualPlot_0.getPlotUpdate();
 
-      hardcopyProperties_6.setCurrentResolutionHeight(870);
+            residualPlot_0.export(String.format("Outputs/%s/Re%s/residuals_%s.csv", model_name, String.valueOf(Re), String.valueOf(grid)), ",");
 
-      XyzInternalTable xyzInternalTable_0 = 
-        ((XyzInternalTable) simulation_0.getTableManager().getTable("XYZ Internal Table"));
+          HardcopyProperties hardcopyProperties_6 = 
+            plotUpdate_0.getHardcopyProperties();
 
-      xyzInternalTable_0.extract();
+          hardcopyProperties_6.setCurrentResolutionWidth(1764);
 
-      xyzInternalTable_0.export(String.format(System.getProperty("user.dir") + "\\data_%s.csv", String.valueOf(grid)), ",");
+          hardcopyProperties_6.setCurrentResolutionWidth(1763);
 
-      Cartesian2DAxisManager cartesian2DAxisManager_0 = 
-        ((Cartesian2DAxisManager) residualPlot_0.getAxisManager());
+          hardcopyProperties_6.setCurrentResolutionHeight(870);
 
-      cartesian2DAxisManager_0.setAxesBounds(new Vector(Arrays.asList(new star.common.AxisManager.AxisBounds("Bottom Axis", 1.0, false, 2478.0, false), new star.common.AxisManager.AxisBounds("Left Axis", 2.957874090299894E-13, false, 1.7436383783867537, false))));
+          XyzInternalTable xyzInternalTable_0 = 
+            ((XyzInternalTable) simulation_0.getTableManager().getTable("XYZ Internal Table"));
 
-      Solution solution_0 = 
-        simulation_0.getSolution();
+          xyzInternalTable_0.extract();
 
-      solution_0.clearSolution(Solution.Clear.History, Solution.Clear.Fields, Solution.Clear.LagrangianDem);
+          xyzInternalTable_0.export(String.format("Outputs/%s/Re%s/data_%s.csv", model_name, String.valueOf(Re), String.valueOf(grid)), ",");
+
+          Cartesian2DAxisManager cartesian2DAxisManager_0 = 
+            ((Cartesian2DAxisManager) residualPlot_0.getAxisManager());
+
+          cartesian2DAxisManager_0.setAxesBounds(new Vector(Arrays.asList(new star.common.AxisManager.AxisBounds("Bottom Axis", 1.0, false, 2478.0, false), new star.common.AxisManager.AxisBounds("Left Axis", 2.957874090299894E-13, false, 1.7436383783867537, false))));
+
+          Solution solution_0 = 
+            simulation_0.getSolution();
+
+          solution_0.clearSolution(Solution.Clear.History, Solution.Clear.Fields, Solution.Clear.LagrangianDem);
+        }
+      }
     }
   }
 }
