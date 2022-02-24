@@ -22,9 +22,11 @@ public class run_simulation extends StarMacro {
 
     Map<Integer, Double> map = new HashMap<Integer, Double>();
       map.put(50, 0.00099025);
-      map.put(100, 0.00082517);
-      map.put(150, 0.00067884);
-      map.put(200, 0.00055125);
+      // map.put(100, 0.00082517);
+      // map.put(150, 0.00067884);
+      // map.put(200, 0.00055125);
+      // map.put(250, 0.00044242);
+      // map.put(300, 0.00035233);
 
     Map<Integer, Double> pressure = new HashMap<Integer, Double>();
     pressure.put(300, -8.83516e-6);
@@ -241,7 +243,10 @@ public class run_simulation extends StarMacro {
             ((Cartesian2DAxisManager) residualPlot_0.getAxisManager());
 
           cartesian2DAxisManager_0.setAxesBounds(new Vector(Arrays.asList(new star.common.AxisManager.AxisBounds("Bottom Axis", 1.0, false, 2478.0, false), new star.common.AxisManager.AxisBounds("Left Axis", 2.957874090299894E-13, false, 1.7436383783867537, false))));
-
+          MonitorPlot monitorPlot_0 = 
+          ((MonitorPlot) simulation_0.getPlotManager().getPlot("Mass Flow 1 Monitor Plot"));
+    
+          monitorPlot_0.export(String.format("Outputs/%s/Re%s/mfr_plot_%s.csv", model_name, String.valueOf(Re), String.valueOf(grid)), ",");
           Solution solution_0 = 
             simulation_0.getSolution();
 
