@@ -23,6 +23,7 @@ class Data:
         self.calculate_ke_and_vorticity(self.Re_numbers)
         if len(self.grids) == 3:
             self.convergence_index = self.calculate_convergence_index()
+            self.convergence_index.index.name = 'Re_tau'
 
     def plot_mfr(self, model, Re=300, grid=200):
         fig, ax = plt.subplots(figsize=(12, 8))
@@ -61,8 +62,14 @@ class Data:
                 conv[model][re] = calculate_GCI(mfr_data)
         return pd.DataFrame(conv)
 
+    def plot_residuals(self, model, Re=300, grid=200):
+        star = self.residuals_plot[model][Re][grid]
+        fig, ax = plt.subplots(figsize=(12, 10))
+        star.plot(ax=ax)
+        ax.set_yscale('log')
+
     def plot_velocity_profile(self, model, Re=300, grid=200, quiver=True):
-        fig, axes = plt.subplots(1, 2, figsize=(18, 6), sharey=True)
+        fig, axes = plt.subplots(1, 2, figsize=(18, 6))
         if model not in self.models:
             raise ValueError('Invalid model. Must be one of:', self.models)
         dns = self.dns[Re]
@@ -72,8 +79,8 @@ class Data:
         for idx, a in enumerate(axes.flat):
             if idx == 0:
                 u = self.nu * Re * dns['<u>']
-                levels = np.linspace(u.min(), u.max(), 20)
-                im = axes[0].tricontourf(dns['y'], dns['z'], u, levels=levels)
+                levels = np.linspace(u.min(), u.max(), 50)
+                im = axes[0].tricontourf(dns['y'], dns['z'], u, levels=levels, cmap='jet')
                 axes[0].set_ylabel('z (m)', fontsize=18)
                 axes[0].set_xlabel('y (m)', fontsize=18)
                 if quiver:
@@ -82,8 +89,8 @@ class Data:
                 y = star['Y (m)']
                 z = star['Z (m)']
                 u = star['Velocity[i] (m/s)']
-                levels = np.linspace(u.min(), u.max(), 20)
-                im = axes[1].tricontourf(y, z, u, levels=levels)
+                levels = np.linspace(u.min(), u.max(), 50)
+                im = axes[1].tricontourf(y, z, u, levels=levels, cmap='jet')
                 axes[1].set_ylabel('z (m)', fontsize=18)
                 axes[1].set_xlabel('y (m)', fontsize=18)
                 if quiver:
@@ -96,7 +103,7 @@ class Data:
         plt.show()
 
     def plot_turbulent_ke(self, model, Re=300, grid=200):
-        fig, axes = plt.subplots(1, 2, figsize=(18, 6), sharey=True)
+        fig, axes = plt.subplots(1, 2, figsize=(18, 6))
         if model not in self.models:
             raise ValueError('Invalid model. Must be one of:', self.models)
         dns = self.dns[Re]
@@ -107,7 +114,7 @@ class Data:
             if idx == 0:
                 turbulent_ke = dns['turbulent_ke']
                 levels = np.linspace(turbulent_ke.min(), turbulent_ke.max(), 20)
-                im = axes[0].tricontourf(dns['y'], dns['z'], turbulent_ke, levels=levels)
+                im = axes[0].tricontourf(dns['y'], dns['z'], turbulent_ke, levels=levels, cmap='jet')
                 axes[0].set_ylabel('z (m)', fontsize=18)
                 axes[0].set_xlabel('y (m)', fontsize=18)
                 dns = dns.iloc[::2]
@@ -116,7 +123,7 @@ class Data:
                 z = star['Z (m)']
                 turbulent_ke = star['Turbulent Kinetic Energy (J/kg)']
                 levels = np.linspace(turbulent_ke.min(), turbulent_ke.max(), 20)
-                im = axes[1].tricontourf(y, z, turbulent_ke, levels=levels)
+                im = axes[1].tricontourf(y, z, turbulent_ke, levels=levels, cmap='jet')
                 axes[1].set_ylabel('z (m)', fontsize=18)
                 axes[1].set_xlabel('y (m)', fontsize=18)
 
@@ -124,7 +131,7 @@ class Data:
         plt.show()
 
     def plot_vorticity(self, model, Re=300, grid=200):
-        fig, axes = plt.subplots(1, 2, figsize=(18, 6), sharey=True)
+        fig, axes = plt.subplots(1, 2, figsize=(18, 6))
         if model not in self.models:
             raise ValueError('Invalid model. Must be one of:', self.models)
         dns = self.dns[Re]
@@ -134,7 +141,7 @@ class Data:
         for idx, a in enumerate(axes.flat):
             if idx == 0:
                 vort = dns['vorticity']
-                im = axes[0].tricontourf(dns['y'], dns['z'], vort)
+                im = axes[0].tricontourf(dns['y'], dns['z'], vort, cmap='jet')
                 axes[0].set_ylabel('z (m)', fontsize=18)
                 axes[0].set_xlabel('y (m)', fontsize=18)
                 dns = dns.iloc[::2]
@@ -142,7 +149,7 @@ class Data:
                 y = star['Y (m)']
                 z = star['Z (m)']
                 vort = star['Vorticity[i] (/s)']
-                im = axes[1].tricontourf(y, z, vort)
+                im = axes[1].tricontourf(y, z, vort, cmap='jet')
                 axes[1].set_ylabel('z (m)', fontsize=18)
                 axes[1].set_xlabel('y (m)', fontsize=18)
 
@@ -156,8 +163,9 @@ class Data:
         errors = star['Velocity[i] (m/s)'] - dns['<u>'] * Re * self.nu
         if absolute:
             errors = np.abs(errors)
+
         plt.figure(figsize=(12, 8))
-        plt.tricontourf(dns['y'], dns['z'], errors)
+        plt.tricontourf(dns['y'], dns['z'], errors, cmap='RdYlGn_r')
         plt.ylabel('Y (m)', fontsize=18)
         plt.xlabel('Z (m)', fontsize=18)
         plt.colorbar()
@@ -170,7 +178,7 @@ class Data:
         if absolute:
             errors = np.abs(errors)
         plt.figure(figsize=(12, 8))
-        plt.tricontourf(dns['y'], dns['z'], errors)
+        plt.tricontourf(dns['y'], dns['z'], errors, cmap='YlOrRd')
         plt.ylabel('Y (m)', fontsize=18)
         plt.xlabel('Z (m)', fontsize=18)
         plt.colorbar()
@@ -183,7 +191,7 @@ class Data:
         if absolute:
             errors = np.abs(errors)
         plt.figure(figsize=(12, 8))
-        plt.tricontourf(dns['y'], dns['z'], errors)
+        plt.tricontourf(dns['y'], dns['z'], errors, cmap='YlOrRd')
         plt.ylabel('Y (m)', fontsize=18)
         plt.xlabel('Z (m)', fontsize=18)
         plt.colorbar()
@@ -234,11 +242,11 @@ def read_star_ccm(Re, grids, models):
         for re in Re:
             data[model][re], mfrs[model][re], residuals[model][re], mfr[model][re] = {}, {}, {}, {}
             for grid in grids:
-                data_df = pd.read_csv(os.path.join('Outputs', model, f'Re{re}', 'data', f'data_{grid}.csv'))
+                data_df = pd.read_csv(os.path.join('Outputs', model, f'Re{re}',  str(grid), f'data_{grid}.csv'))
                 mfr_df = pd.read_csv(
-                    os.path.join('Outputs', model, f'Re{re}', 'mfr', f'mfr_plot_{grid}.csv'), index_col=0)
+                    os.path.join('Outputs', model, f'Re{re}', str(grid), f'mfr_plot_{grid}.csv'), index_col=0)
                 residuals_df = pd.read_csv(
-                    os.path.join('Outputs', model, f'Re{re}', 'residuals', f'residuals_{grid}.csv'), index_col=0)
+                    os.path.join('Outputs', model, f'Re{re}', str(grid), f'residuals_{grid}.csv'), index_col=0)
 
                 data[model][re][grid], mfrs[model][re][grid], residuals[model][re][grid] = data_df, mfr_df, residuals_df
                 mfr[model][re][grid] = mfr_df.iloc[-1].values[0] * 4
