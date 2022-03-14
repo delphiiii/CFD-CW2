@@ -10,7 +10,7 @@ import xarray
 
 
 class Data:
-    def __init__(self, Re_numbers, models, grids, rho=1.18415, mu=1.85508E-5):
+    def __init__(self, Re_numbers, models, grids, include_dns=True, rho=1.18415, mu=1.85508E-5):
         self.Re_numbers = Re_numbers
         self.models = models
         self.grids = grids
@@ -18,9 +18,11 @@ class Data:
         self.mu = mu
         self.nu = mu / rho
         self.data, self.mfr_plot, self.residuals_plot, self.mfr = read_star_ccm(Re_numbers, grids, models)
-        self.dns = read_yz_sections(Re_numbers)
-        self.dns_mfr = calculate_dns_mfr(self.dns, rho, self.nu, self.Re_numbers)
-        self.calculate_ke_and_vorticity(self.Re_numbers)
+        self.include_dns = include_dns
+        if include_dns:
+            self.dns = read_yz_sections(Re_numbers)
+            self.dns_mfr = calculate_dns_mfr(self.dns, rho, self.nu, self.Re_numbers)
+            self.calculate_ke_and_vorticity(self.Re_numbers)
         if len(self.grids) == 3:
             self.convergence_index = self.calculate_convergence_index()
             self.convergence_index.index.name = 'Re_tau'
@@ -69,92 +71,123 @@ class Data:
         ax.set_yscale('log')
 
     def plot_velocity_profile(self, model, Re=300, grid=200, quiver=True):
-        fig, axes = plt.subplots(1, 2, figsize=(18, 6))
         if model not in self.models:
             raise ValueError('Invalid model. Must be one of:', self.models)
-        dns = self.dns[Re]
         star = self.data[model][Re][grid]
-        star, dns = down_sample_grid(star, dns)
-        im = None
-        for idx, a in enumerate(axes.flat):
-            if idx == 0:
-                u = self.nu * Re * dns['<u>']
-                levels = np.linspace(u.min(), u.max(), 50)
-                im = axes[0].tricontourf(dns['y'], dns['z'], u, levels=levels, cmap='jet')
-                axes[0].set_ylabel('z (m)', fontsize=18)
-                axes[0].set_xlabel('y (m)', fontsize=18)
-                if quiver:
-                    axes[0].quiver(dns['y'], dns['z'], dns['<v>'] * self.nu * Re, dns['<w>'] * self.nu * Re)
-            else:
-                y = star['Y (m)']
-                z = star['Z (m)']
-                u = star['Velocity[i] (m/s)']
-                levels = np.linspace(u.min(), u.max(), 50)
-                im = axes[1].tricontourf(y, z, u, levels=levels, cmap='jet')
-                axes[1].set_ylabel('z (m)', fontsize=18)
-                axes[1].set_xlabel('y (m)', fontsize=18)
-                if quiver:
-                    axes[1].quiver(star['Y (m)'],
-                                   star['Z (m)'],
-                                   star['Velocity[j] (m/s)'],
-                                   star['Velocity[k] (m/s)'])
-
-        fig.colorbar(im, ax=axes.ravel().tolist())
-        plt.show()
+        if self.include_dns:
+            dns = self.dns[Re]
+            star, dns = down_sample_grid(star, dns)
+            fig, axes = plt.subplots(1, 2, figsize=(18, 6))
+            for idx, a in enumerate(axes.flat):
+                if idx == 0:
+                    u = self.nu * Re * dns['<u>']
+                    levels = np.linspace(u.min(), u.max(), 50)
+                    im = axes[0].tricontourf(dns['y'], dns['z'], u, levels=levels, cmap='jet')
+                    axes[0].set_ylabel('z (m)', fontsize=18)
+                    axes[0].set_xlabel('y (m)', fontsize=18)
+                    if quiver:
+                        axes[0].quiver(dns['y'], dns['z'], dns['<v>'] * self.nu * Re, dns['<w>'] * self.nu * Re)
+                else:
+                    y = star['Y (m)']
+                    z = star['Z (m)']
+                    u = star['Velocity[i] (m/s)']
+                    levels = np.linspace(u.min(), u.max(), 50)
+                    im = axes[1].tricontourf(y, z, u, levels=levels, cmap='jet')
+                    axes[1].set_ylabel('z (m)', fontsize=18)
+                    axes[1].set_xlabel('y (m)', fontsize=18)
+                    if quiver:
+                        axes[1].quiver(star['Y (m)'],
+                                       star['Z (m)'],
+                                       star['Velocity[j] (m/s)'],
+                                       star['Velocity[k] (m/s)'])
+                fig.colorbar(im, ax=axes.ravel().tolist())
+                plt.show()
+        else:
+            y = star['Y (m)']
+            z = star['Z (m)']
+            u = star['Velocity[i] (m/s)']
+            plt.figure(figsize=(10, 8))
+            levels = np.linspace(u.min(), u.max(), 50)
+            plt.tricontourf(y, z, u, levels=levels, cmap='jet')
+            plt.ylabel('z (m)', fontsize=18)
+            plt.xlabel('y (m)', fontsize=18)
+            if quiver:
+                plt.quiver(star['Y (m)'],
+                           star['Z (m)'],
+                           star['Velocity[j] (m/s)'],
+                           star['Velocity[k] (m/s)'])
+            plt.colorbar()
 
     def plot_turbulent_ke(self, model, Re=300, grid=200):
-        fig, axes = plt.subplots(1, 2, figsize=(18, 6))
         if model not in self.models:
             raise ValueError('Invalid model. Must be one of:', self.models)
-        dns = self.dns[Re]
         star = self.data[model][Re][grid]
-        star, dns = down_sample_grid(star, dns)
-        im = None
-        for idx, a in enumerate(axes.flat):
-            if idx == 0:
-                turbulent_ke = dns['turbulent_ke']
-                levels = np.linspace(turbulent_ke.min(), turbulent_ke.max(), 20)
-                im = axes[0].tricontourf(dns['y'], dns['z'], turbulent_ke, levels=levels, cmap='jet')
-                axes[0].set_ylabel('z (m)', fontsize=18)
-                axes[0].set_xlabel('y (m)', fontsize=18)
-                dns = dns.iloc[::2]
-            else:
-                y = star['Y (m)']
-                z = star['Z (m)']
-                turbulent_ke = star['Turbulent Kinetic Energy (J/kg)']
-                levels = np.linspace(turbulent_ke.min(), turbulent_ke.max(), 20)
-                im = axes[1].tricontourf(y, z, turbulent_ke, levels=levels, cmap='jet')
-                axes[1].set_ylabel('z (m)', fontsize=18)
-                axes[1].set_xlabel('y (m)', fontsize=18)
-
-        fig.colorbar(im, ax=axes.ravel().tolist())
-        plt.show()
+        if self.include_dns:
+            dns = self.dns[Re]
+            star, dns = down_sample_grid(star, dns)
+            fig, axes = plt.subplots(1, 2, figsize=(18, 6))
+            for idx, a in enumerate(axes.flat):
+                if idx == 0:
+                    ke = dns['turbulent_ke']
+                    levels = np.linspace(ke.min(), ke.max(), 50)
+                    im = axes[0].tricontourf(dns['y'], dns['z'], ke, levels=levels, cmap='jet')
+                    axes[0].set_ylabel('z (m)', fontsize=18)
+                    axes[0].set_xlabel('y (m)', fontsize=18)
+                else:
+                    y = star['Y (m)']
+                    z = star['Z (m)']
+                    ke = star['Turbulent Kinetic Energy (J/kg)']
+                    levels = np.linspace(ke.min(), ke.max(), 50)
+                    im = axes[1].tricontourf(y, z, ke, levels=levels, cmap='jet')
+                    axes[1].set_ylabel('z (m)', fontsize=18)
+                    axes[1].set_xlabel('y (m)', fontsize=18)
+                fig.colorbar(im, ax=axes.ravel().tolist())
+                plt.show()
+        else:
+            y = star['Y (m)']
+            z = star['Z (m)']
+            ke = star['Turbulent Kinetic Energy (J/kg)']
+            plt.figure(figsize=(10, 8))
+            levels = np.linspace(ke.min(), ke.max(), 50)
+            plt.tricontourf(y, z, ke, levels=levels, cmap='jet')
+            plt.ylabel('z (m)', fontsize=18)
+            plt.xlabel('y (m)', fontsize=18)
+            plt.colorbar()
 
     def plot_vorticity(self, model, Re=300, grid=200):
-        fig, axes = plt.subplots(1, 2, figsize=(18, 6))
         if model not in self.models:
             raise ValueError('Invalid model. Must be one of:', self.models)
-        dns = self.dns[Re]
         star = self.data[model][Re][grid]
-        star, dns = down_sample_grid(star, dns)
-        im = None
-        for idx, a in enumerate(axes.flat):
-            if idx == 0:
-                vort = dns['vorticity']
-                im = axes[0].tricontourf(dns['y'], dns['z'], vort, cmap='jet')
-                axes[0].set_ylabel('z (m)', fontsize=18)
-                axes[0].set_xlabel('y (m)', fontsize=18)
-                dns = dns.iloc[::2]
-            else:
-                y = star['Y (m)']
-                z = star['Z (m)']
-                vort = star['Vorticity[i] (/s)']
-                im = axes[1].tricontourf(y, z, vort, cmap='jet')
-                axes[1].set_ylabel('z (m)', fontsize=18)
-                axes[1].set_xlabel('y (m)', fontsize=18)
-
-        fig.colorbar(im, ax=axes.ravel().tolist())
-        plt.show()
+        if self.include_dns:
+            dns = self.dns[Re]
+            star, dns = down_sample_grid(star, dns)
+            fig, axes = plt.subplots(1, 2, figsize=(18, 6))
+            for idx, a in enumerate(axes.flat):
+                if idx == 0:
+                    vort = dns['vorticity']
+                    levels = np.linspace(vort.min(), vort.max(), 50)
+                    im = axes[0].tricontourf(dns['y'], dns['z'], vort, levels=levels, cmap='jet')
+                    axes[0].set_ylabel('z (m)', fontsize=18)
+                    axes[0].set_xlabel('y (m)', fontsize=18)
+                else:
+                    y = star['Y (m)']
+                    z = star['Z (m)']
+                    vort = star['Vorticity[i] (/s)']
+                    levels = np.linspace(vort.min(), vort.max(), 50)
+                    im = axes[1].tricontourf(y, z, vort, levels=levels, cmap='jet')
+                    axes[1].set_ylabel('z (m)', fontsize=18)
+                    axes[1].set_xlabel('y (m)', fontsize=18)
+                fig.colorbar(im, ax=axes.ravel().tolist())
+                plt.show()
+        else:
+            y = star['Y (m)']
+            z = star['Z (m)']
+            vort = star['Vorticity[i] (/s)']
+            plt.figure(figsize=(10, 8))
+            plt.tricontourf(y, z, vort, cmap='jet')
+            plt.ylabel('z (m)', fontsize=18)
+            plt.xlabel('y (m)', fontsize=18)
+            plt.colorbar()
 
     def plot_velocity_errors(self, model, Re=300, grid=200, absolute=True):
         dns = self.dns[Re]
